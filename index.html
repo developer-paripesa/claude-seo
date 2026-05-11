@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude SEO</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-h: #79c0ff;
+      --success: #3fb950;
+      --warn: #d29922;
+      --danger: #f85149;
+      --sidebar: 268px;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    /* NAV */
+    nav {
+      height: 52px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-spacer { flex: 1; }
+    .nav-model select {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .nav-model select:focus { outline: none; border-color: var(--accent); }
+    .btn-key {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-key:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-key.active { border-color: var(--success); color: var(--success); }
+
+    /* LAYOUT */
+    .layout {
+      display: flex;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    aside {
+      width: var(--sidebar);
+      min-width: var(--sidebar);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 8px 0 16px;
+    }
+    aside::-webkit-scrollbar { width: 4px; }
+    aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .cat-header {
+      padding: 10px 14px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .skill-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 14px;
+      cursor: pointer;
+      border-radius: 6px;
+      margin: 1px 6px;
+      transition: background .1s;
+      color: var(--muted);
+    }
+    .skill-item:hover { background: var(--bg3); color: var(--text); }
+    .skill-item.active { background: rgba(88,166,255,.12); color: var(--accent); }
+    .skill-item .si-icon { font-size: 14px; flex-shrink: 0; }
+    .skill-item .si-name { font-size: 13px; font-weight: 500; }
+    .skill-item .si-badge {
+      margin-left: auto;
+      font-size: 9px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 10px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .skill-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .skill-header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .skill-header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .content-area {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* FORM PANEL */
+    .form-panel {
+      width: 340px;
+      min-width: 340px;
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+    .form-panel::-webkit-scrollbar { width: 4px; }
+    .form-panel::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+    .field-group label { font-size: 12px; font-weight: 500; color: var(--muted); }
+    .field-group input,
+    .field-group textarea,
+    .field-group select {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      width: 100%;
+      font-family: inherit;
+      transition: border-color .15s;
+    }
+    .field-group input:focus,
+    .field-group textarea:focus,
+    .field-group select:focus { outline: none; border-color: var(--accent); }
+    .field-group textarea { resize: vertical; min-height: 80px; }
+    .field-group .hint { font-size: 11px; color: var(--muted); }
+
+    .pagespeed-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .pagespeed-toggle input { cursor: pointer; accent-color: var(--accent); }
+
+    .btn-analyze {
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      transition: background .15s, opacity .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-analyze:hover { background: var(--accent-h); }
+    .btn-analyze:disabled { opacity: .5; cursor: not-allowed; }
+
+    .btn-stop {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      width: 100%;
+      display: none;
+    }
+    .btn-stop:hover { background: rgba(248,81,73,.1); }
+
+    /* RESPONSE PANEL */
+    .response-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .response-toolbar {
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg2);
+    }
+    .response-toolbar span {
+      font-size: 12px;
+      color: var(--muted);
+      flex: 1;
+    }
+    .btn-copy, .btn-print {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-print:hover { border-color: var(--muted); color: var(--text); }
+    .btn-copy.copied { border-color: var(--success); color: var(--success); }
+
+    .response-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+    .response-content::-webkit-scrollbar { width: 6px; }
+    .response-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+      color: var(--muted);
+      text-align: center;
+      padding: 40px;
+    }
+    .placeholder .ph-icon { font-size: 48px; opacity: .4; }
+    .placeholder h3 { font-size: 16px; font-weight: 500; }
+    .placeholder p { font-size: 13px; max-width: 320px; }
+
+    .loading-dots {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+    }
+    .loading-dots span {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: dot 1.2s infinite ease-in-out;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .2s; }
+    .loading-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes dot { 0%,80%,100% { transform: scale(.6); opacity:.4 } 40% { transform: scale(1); opacity:1 } }
+
+    /* MARKDOWN STYLES */
+    .md-body { color: var(--text); line-height: 1.7; }
+    .md-body h1 { font-size: 20px; font-weight: 700; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 17px; font-weight: 600; margin: 20px 0 8px; color: var(--accent-h); }
+    .md-body h3 { font-size: 15px; font-weight: 600; margin: 16px 0 6px; }
+    .md-body h4 { font-size: 14px; font-weight: 600; margin: 12px 0 4px; color: var(--muted); }
+    .md-body p { margin: 0 0 10px; }
+    .md-body ul, .md-body ol { margin: 0 0 10px 20px; }
+    .md-body li { margin-bottom: 3px; }
+    .md-body strong { font-weight: 600; color: var(--text); }
+    .md-body em { color: var(--muted); }
+    .md-body code {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12px;
+    }
+    .md-body pre {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      overflow-x: auto;
+      margin: 0 0 12px;
+    }
+    .md-body pre code { background: none; border: none; padding: 0; }
+    .md-body table { width: 100%; border-collapse: collapse; margin: 0 0 12px; font-size: 13px; }
+    .md-body th { background: var(--bg3); border: 1px solid var(--border); padding: 8px 10px; font-weight: 600; text-align: left; }
+    .md-body td { border: 1px solid var(--border); padding: 7px 10px; }
+    .md-body tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+    .md-body blockquote { border-left: 3px solid var(--accent); padding: 8px 12px; margin: 0 0 12px; background: rgba(88,166,255,.06); color: var(--muted); }
+    .md-body a { color: var(--accent); text-decoration: none; }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      width: 420px;
+      max-width: 90vw;
+    }
+    .modal h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .modal input {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-size: 14px;
+      width: 100%;
+      margin-bottom: 12px;
+      font-family: monospace;
+    }
+    .modal input:focus { outline: none; border-color: var(--accent); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-save {
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-save:hover { background: var(--accent-h); }
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
+
+    /* PRINT */
+    @media print {
+      nav, aside, .form-panel, .response-toolbar { display: none !important; }
+      body, .layout, main, .content-area, .response-panel, .response-content { overflow: visible !important; height: auto !important; }
+      .response-content { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#58a6ff" stroke-width="1.5"/><path d="M8 12h8M12 8v8" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Claude <span>SEO</span>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-model">
+    <select id="modelSelect" title="Модель Claude">
+      <option value="claude-sonnet-4-6">Sonnet 4.6</option>
+      <option value="claude-opus-4-5">Opus 4.5</option>
+      <option value="claude-haiku-4-5-20251001">Haiku 4.5 (швидкий)</option>
+    </select>
+  </div>
+  <button class="btn-key" id="btnKey" onclick="openModal()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    API Ключ
+  </button>
+</nav>
+
+<div class="layout">
+  <aside id="sidebar"></aside>
+  <main>
+    <div class="skill-header">
+      <h1 id="skillTitle">🔍 Аудит сайту</h1>
+      <p id="skillDesc">Комплексний SEO аналіз всього сайту з пріоритизованими рекомендаціями</p>
+    </div>
+    <div class="content-area">
+      <div class="form-panel" id="formPanel"></div>
+      <div class="response-panel">
+        <div class="response-toolbar">
+          <span id="responseStatus">Введіть дані та натисніть «Аналізувати»</span>
+          <button class="btn-print" onclick="window.print()" title="Друк / PDF">🖨 PDF</button>
+          <button class="btn-copy" id="btnCopy" onclick="copyResponse()">Копіювати</button>
+        </div>
+        <div class="response-content" id="responseContent">
+          <div class="placeholder">
+            <div class="ph-icon">📊</div>
+            <h3>Результат аналізу</h3>
+            <p>Оберіть skill зліва, введіть URL або ключове слово і натисніть «Аналізувати»</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- API Key Modal -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <h2>🔑 Claude API Ключ</h2>
+    <p>Введіть ваш Anthropic API ключ. Він зберігається локально у браузері і нікуди не передається.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" />
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Скасувати</button>
+      <button class="btn-save" onclick="saveApiKey()">Зберегти</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  SKILLS DEFINITION
+// ═══════════════════════════════════════════
+
+const CATEGORIES = [
+  { id: 'technical', name: 'Технічний аналіз' },
+  { id: 'content',   name: 'Контент' },
+  { id: 'ai_search', name: 'AI-Пошук' },
+  { id: 'local',     name: 'Локальне SEO' },
+  { id: 'strategy',  name: 'Стратегія' },
+  { id: 'tools',     name: 'Інструменти' },
+];
+
+const SKILLS = [
+  // ── TECHNICAL ────────────────────────────────
+  {
+    id: 'seo-audit',
+    category: 'technical',
+    icon: '🔍',
+    name: 'Аудит сайту',
+    description: 'Комплексний SEO аналіз всього сайту з пріоритизованими рекомендаціями',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту', placeholder: 'https://example.com', required: true }
+    ],
+    pagespeed: true,
+    systemPrompt: `You are Claude SEO, an expert SEO analyst. Perform comprehensive website SEO audits.
+
+Scoring weights: Technical SEO (22%), Content Quality (23%), On-Page (20%), Schema (10%), Performance (10%), AI Readiness (10%), Images (5%).
+
+Key standards:
+- Core Web Vitals: LCP <2.5s, INP <200ms, CLS <0.1
+- Title tags: 50-60 chars; Meta descriptions: 150-160 chars
+- Schema: use JSON-LD; NEVER recommend HowTo or SpecialAnnouncement (deprecated)
+- E-E-A-T: Experience, Expertise, Authoritativeness, Trustworthiness
+- Images: alt text, <200KB, WebP/AVIF preferred
+- AI Readiness: structured answer blocks, clear entities, citability for AI Overviews/ChatGPT
+
+Output format:
+1. **SEO Health Score** — overall 0-100 score with dimension breakdown table
+2. **Executive Summary** — 3-5 key findings
+3. **Критичні проблеми** — must fix immediately
+4. **Високий пріоритет** — fix within 30 days
+5. **Швидкі перемоги** — easy wins with big impact
+6. **30-денний план дій** — prioritized roadmap
+
+Respond entirely in Ukrainian. Use markdown: headers, tables, bullet points, bold for emphasis.`,
+    buildMessage: (f, ps) => `Виконай комплексний SEO аудит сайту: **${f.url}**${ps ? '\n\n**Дані PageSpeed Insights:**\n```\n' + ps + '\n```' : ''}`
+  },
+
+  {
+    id: 'seo-page',
+    category: 'technical',
+    icon: '📄',
+    name: 'Аналіз сторінки',
+    description: 'Детальний SEO аналіз окремої сторінки: on-page, контент, технічні аспекти',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сторінки', placeholder: 'https://example.com/page', required: true },
+      { id: 'keyword', type: 'text', label: 'Цільове ключове слово (необов\'язково)', placeholder: 'seo аналіз сайту', required: false }
+    ],
+    pagespeed: true,
+    systemPrompt: `You are Claude SEO, an expert on-page SEO analyst. Analyze individual pages with a 100-point scorecard.
+
+Scoring dimensions:
+- **On-Page SEO** (25%): Title tag (50-60 chars), meta description (150-160 chars), H1 uniqueness, heading hierarchy, URL structure, keyword in title/H1/URL/first 100 words
+- **Content Quality** (25%): Word count (blog 1500+, service 800+, homepage 500+), readability, E-E-A-T signals, uniqueness, freshness, keyword density (1-3% natural)
+- **Technical** (20%): Canonical, meta robots, Open Graph, Twitter Cards, hreflang if needed
+- **Schema** (15%): JSON-LD detection, required properties, appropriate type
+- **Images** (10%): Alt text (10-125 chars), file sizes (<200KB), WebP/AVIF format
+- **Performance** (5%): Core Web Vitals for this specific page
+
+If a target keyword is provided, assess its optimization for that keyword specifically.
+
+Output:
+1. Page SEO Score (0-100) with dimension breakdown
+2. Keyword optimization assessment (if keyword provided)
+3. Critical issues
+4. Detailed recommendations per dimension
+5. Schema recommendation (what type to add)
+
+Respond in Ukrainian. Use markdown tables and bullet points.`,
+    buildMessage: (f, ps) => `Виконай детальний SEO аналіз сторінки: **${f.url}**${f.keyword ? `\n\nЦільове ключове слово: **${f.keyword}**` : ''}${ps ? '\n\n**Дані PageSpeed:**\n```\n' + ps + '\n```' : ''}`
+  },
+
+  {
+    id: 'seo-technical',
+    category: 'technical',
+    icon: '⚙️',
+    name: 'Технічний SEO',
+    description: 'Глибокий технічний аудит: 9 категорій — crawlability, Core Web Vitals, безпека, JS SEO',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту', placeholder: 'https://example.com', required: true }
+    ],
+    pagespeed: true,
+    systemPrompt: `You are Claude SEO, a technical SEO specialist. Perform a deep technical SEO audit across 9 categories.
+
+Categories to audit:
+1. **Crawlability**: robots.txt validity, XML sitemaps (<50k URLs), noindex usage, AI crawler management (GPTBot, ClaudeBot, Google-Extended)
+2. **Indexability**: Canonical tags, duplicate content, pagination (rel=next deprecated), hreflang
+3. **Security**: HTTPS enforcement, HSTS, CSP, X-Frame-Options, HSTS preload status
+4. **Mobile**: Responsive design, touch targets (48x48px min), viewport meta, font sizing
+5. **Core Web Vitals**: LCP <2.5s, INP <200ms (replaced FID Sept 9 2024), CLS <0.1; field vs lab data
+6. **JavaScript SEO**: Critical SEO elements in server-rendered HTML (not JS-injected) — Dec 2025 guidance
+7. **Structured Data**: JSON-LD presence, validation, required properties
+8. **Rendering**: Server-side rendering detection, SPA issues, IndexNow protocol support
+9. **International**: hreflang if multi-language, x-default tag
+
+For each category: score (0-100), status (✅ Pass / ⚠️ Warning / ❌ Critical), key findings, specific fix.
+
+Respond in Ukrainian. Use markdown tables, emoji status indicators.`,
+    buildMessage: (f, ps) => `Виконай технічний SEO аудит сайту: **${f.url}**${ps ? '\n\n**PageSpeed дані:**\n```\n' + ps + '\n```' : ''}`
+  },
+
+  {
+    id: 'seo-schema',
+    category: 'technical',
+    icon: '🏗️',
+    name: 'Schema Markup',
+    description: 'Валідація та генерація Schema.org розмітки у форматі JSON-LD',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сторінки', placeholder: 'https://example.com/page', required: false },
+      { id: 'content', type: 'textarea', label: 'HTML код або опис сторінки (необов\'язково)', placeholder: 'Вставте HTML або опишіть тип сторінки...', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a Schema.org structured data expert.
+
+Active schema types (use freely): Organization, LocalBusiness, Product, Article, BlogPosting, Review, Event, VideoObject, Person, BreadcrumbList, SiteLinksSearchBox, ItemList, WebPage, FAQPage (ONLY for government/healthcare authority sites).
+
+Deprecated/NEVER recommend: HowTo (retired), SpecialAnnouncement (retired), CourseInfo, ClaimReview, VehicleListing, Dataset.
+
+JSON-LD validation checklist:
+- @context: "https://schema.org"
+- @type: valid, appropriate for page
+- Required properties present (varies by type)
+- No placeholder text
+- URLs absolute not relative
+- Dates in ISO 8601 format
+- No broken nesting
+
+Output:
+1. **Existing schema** — detected types, validation status per property
+2. **Issues found** — missing required props, wrong types, errors
+3. **Recommended schema** — most appropriate type(s) for this page/content
+4. **Generated JSON-LD** — ready-to-use, copy-paste code block
+
+If HTML is provided: detect existing schema and validate it.
+If URL only: recommend appropriate schema type and generate it.
+
+Respond in Ukrainian. Include complete JSON-LD code in a code block.`,
+    buildMessage: (f) => `Проаналізуй та згенеруй Schema.org розмітку${f.url ? ` для сторінки: **${f.url}**` : ''}${f.content ? '\n\n**HTML/Опис:**\n```html\n' + f.content.substring(0, 3000) + '\n```' : ''}${!f.url && !f.content ? '\n\nОпиши що потрібно: URL сторінки або HTML контент для аналізу.' : ''}`
+  },
+
+  {
+    id: 'seo-images',
+    category: 'technical',
+    icon: '🖼️',
+    name: 'Оптимізація зображень',
+    description: 'SEO аудит зображень: alt text, розміри, формати, lazy loading, CLS',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сторінки', placeholder: 'https://example.com/page', required: true }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, an image SEO optimization specialist.
+
+Analysis criteria:
+**Alt Text**: 10-125 characters, avoid keyword stuffing, include natural keywords; filenames as alt text is wrong
+**File Sizes**: Thumbnails <50KB, content images <100KB, hero images <200KB, critical >500KB
+**Formats**: WebP (97%+ browser support), AVIF (92%+); use <picture> element for progressive enhancement
+**Responsive**: srcset and sizes attributes for device pixel ratios; breakpoints: 400w, 800w, 1200w
+**Lazy Loading**: below-fold images use loading="lazy"; above-fold use loading="eager" to prevent LCP degradation
+**CLS Prevention**: all images must have width + height attributes OR CSS aspect-ratio
+**IPTC Metadata**: Creator/Copyright fields (not ranking factor but enhances Google Images display)
+
+Output:
+1. **Image SEO Score** (0-100)
+2. **Issues table** — each issue: severity, description, affected images count, fix
+3. **Alt text recommendations** — examples of good vs bad
+4. **Format conversion plan** — which images to convert, expected size savings
+5. **Lazy loading audit** — correct above/below fold usage
+6. **HTML snippets** — correct implementation examples
+
+Respond in Ukrainian. Use tables for issues, code blocks for HTML examples.`,
+    buildMessage: (f) => `Виконай SEO аудит зображень для сторінки: **${f.url}**`
+  },
+
+  {
+    id: 'seo-sitemap',
+    category: 'technical',
+    icon: '🗺️',
+    name: 'Аналіз Sitemap',
+    description: 'Валідація XML sitemap, виявлення проблем, генерація нового sitemap',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту або sitemap', placeholder: 'https://example.com', required: true },
+      { id: 'action', type: 'select', label: 'Дія', required: true, options: [
+        { value: 'analyze', label: 'Аналіз існуючого sitemap' },
+        { value: 'generate', label: 'Рекомендації для генерації' }
+      ]}
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, an XML sitemap specialist.
+
+Validation standards:
+- Max 50,000 URLs per sitemap file (protocol limit)
+- Max 50MB uncompressed per file
+- Deprecated tags (ignore/remove): <priority>, <changefreq> (ignored by Google since 2022)
+- Required: <loc> with absolute URLs, <lastmod> in ISO 8601 (YYYY-MM-DD)
+- Split large sitemaps with a sitemap index file
+- Remove: noindexed URLs, redirected URLs (301/302), broken URLs (404/500)
+
+Quality checks:
+- Noindexed pages should NOT be in sitemap
+- Redirected URLs should NOT be in sitemap (use final URL)
+- Orphan pages (not internally linked) — warning
+- High-risk programmatic patterns: location pages with only city name swapped (thin content risk)
+- Safe programmatic: product pages with unique specs, integration pages with real setup docs
+
+Output for "analyze": validation report, issues table with severity, fix recommendations
+Output for "generate": sitemap architecture plan, URL patterns, index structure, sample XML
+
+Respond in Ukrainian. Include XML code examples.`,
+    buildMessage: (f) => `${f.action === 'generate' ? 'Надай рекомендації для генерації XML sitemap для' : 'Виконай аналіз XML sitemap'} сайту: **${f.url}**`
+  },
+
+  // ── CONTENT ────────────────────────────────
+  {
+    id: 'seo-content',
+    category: 'content',
+    icon: '📝',
+    name: 'Якість контенту',
+    description: 'E-E-A-T аналіз за September 2025 Quality Rater Guidelines + AI citation readiness',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сторінки', placeholder: 'https://example.com/blog/post', required: true }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a content quality specialist using Google's September 2025 E-E-A-T framework.
+
+E-E-A-T scoring weights:
+- **Experience** (20%): Original research, case studies, personal documentation, unique data, first-person expertise
+- **Expertise** (25%): Author credentials, technical depth, accurate sourcing, up-to-date information
+- **Authoritativeness** (25%): External citations, industry recognition, expert mentions, backlink quality signals
+- **Trustworthiness** (30%): Contact info, privacy policy, testimonials, HTTPS, editorial standards
+
+Content metrics:
+- Word count minimums: Homepage 500, Service pages 800, Blog posts 1,500, Product pages 400+, Location pages 500-600
+- Keyword density: natural 1-3% (not a direct ranking factor per Google — over-optimization is penalized)
+- Freshness: publication date, last updated date, time-sensitive claim updates
+
+AI Citation Readiness (2025 update — Google AI Mode launched May 2025):
+- 134-167 word quotable answer blocks
+- Clear entity definitions
+- Structured data around key claims
+- Author credentials visible
+- First-party data and original research
+- Multi-platform AI visibility: Google AIO, ChatGPT, Perplexity
+
+Output:
+1. E-E-A-T Score (0-100) with dimension breakdown
+2. AI Citation Readiness assessment
+3. Content gaps identified
+4. Specific improvement recommendations with examples
+5. Keyword optimization status
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Виконай аналіз якості контенту (E-E-A-T) для сторінки: **${f.url}**`
+  },
+
+  {
+    id: 'seo-content-brief',
+    category: 'content',
+    icon: '📋',
+    name: 'Контент-бриф',
+    description: 'Детальний бриф для написання контенту що обганяє конкурентів у пошуку',
+    fields: [
+      { id: 'keyword', type: 'text', label: 'Цільовий запит або тема', placeholder: 'seo аудит сайту безкоштовно', required: true },
+      { id: 'url', type: 'text', label: 'URL існуючої сторінки (для покращення)', placeholder: 'https://example.com/page (необов\'язково)', required: false },
+      { id: 'context', type: 'textarea', label: 'Контекст бізнесу', placeholder: 'Опишіть ваш сайт, цільову аудиторію, USP...', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a content strategy expert. Create research-backed content briefs that outrank competitors.
+
+Brief components:
+1. **Search Intent Classification**: Informational / Commercial / Transactional / Navigational
+2. **Competitor Analysis**: Top 10 SERP patterns (page types, word counts, schema signals, formats)
+3. **Content Gaps**: What competitors miss, what unique angle to take
+4. **Target Audience**: Primary persona, knowledge level, pain points
+5. **Content Structure**: Winning outline with H2/H3 hierarchy, per-section word counts
+6. **Keyword Strategy**:
+   - Primary keyword: 0.5-2.0% density, in title/H1/URL/meta/first 100 words/image alt
+   - Secondary keywords: 5-8 related terms distributed naturally
+7. **Meta Tags**: Title (50-60 chars), meta description (150-160 chars) with click-triggering copy
+8. **E-E-A-T Requirements**: What signals to include for credibility
+9. **Internal Linking**: Hub pages to reference, spoke articles to link to
+10. **Content Freshness**: Update frequency, time-sensitive claims to watch
+
+Rules:
+- Every suggestion must be relevant to what the site actually offers
+- For business owners/content writers language, not SEO jargon
+- Include specific word count targets per section
+
+Respond in Ukrainian with a structured, actionable brief.`,
+    buildMessage: (f) => `Створи детальний контент-бриф для запиту: **"${f.keyword}"**${f.url ? `\n\nІснуюча сторінка для покращення: ${f.url}` : ''}${f.context ? `\n\nКонтекст бізнесу:\n${f.context}` : ''}`
+  },
+
+  {
+    id: 'seo-competitor-pages',
+    category: 'content',
+    icon: '⚔️',
+    name: 'Порівняльні сторінки',
+    description: 'Генерація SEO-оптимізованих "X vs Y" та "Альтернативи X" сторінок',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL вашого продукту/сервісу', placeholder: 'https://example.com/product', required: true },
+      { id: 'competitors', type: 'textarea', label: 'Конкуренти (кожен з нового рядка)', placeholder: 'competitor1.com\ncompetitor2.com\ncompetitor3.com', required: true }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a competitive content specialist. Create SEO-optimized comparison and alternatives pages.
+
+Page types to generate:
+1. **"X vs Y" Comparison** — feature analysis with justified verdict, pros/cons table
+2. **"Alternatives to X"** — substitute options with use cases
+3. **Category Roundup** — curated list with ranking criteria
+
+Requirements for all pages:
+- **Accuracy**: All feature claims verifiable from public sources
+- **Pricing**: Include "as of [current date]" notes; recommend quarterly review
+- **Disclosure**: Clear affiliation statements, methodology transparency
+- **Fairness**: Acknowledge competitor strengths, no defamation, cite sources
+- **Minimum**: 1,500+ words per page
+- **Freshness**: Mention when data was last verified
+
+Technical elements to include:
+- ProductSchema or SoftwareApplication JSON-LD
+- ItemList schema for roundup pages
+- Title formulas: "[Your Product] vs [Competitor]: Which is Better in 2025?"
+- CTA placement: above fold, after comparison table, at end
+
+Output for each page type:
+1. Recommended page structure with H2/H3 outline
+2. Feature comparison table template
+3. JSON-LD schema snippet
+4. Title/meta tags
+5. Key differentiators to highlight
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Розроби стратегію порівняльних SEO-сторінок для: **${f.url}**\n\nКонкуренти:\n${f.competitors}`
+  },
+
+  {
+    id: 'seo-programmatic',
+    category: 'content',
+    icon: '⚡',
+    name: 'Програматичний SEO',
+    description: 'Аудит та стратегія масової генерації SEO-сторінок без штрафів за thin content',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту', placeholder: 'https://example.com', required: true },
+      { id: 'context', type: 'textarea', label: 'Опис шаблону / джерела даних', placeholder: 'Опишіть структуру даних (CSV/JSON), шаблон сторінок, URL-патерни...', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a programmatic SEO specialist. Audit and design scalable content programs that avoid thin content penalties.
+
+Audit areas:
+1. **Data Source Assessment**: Row count, uniqueness score, freshness, duplicate detection (flag >80% field overlap)
+2. **Template Engine**: Variable injection points, conditional logic, supplementary content to avoid "mad-libs" keyword swaps
+3. **URL Pattern Strategy**: Lowercase hyphenated slugs <100 chars (e.g., /tools/[tool-name], /[city]/[service]), no query parameters
+4. **Internal Linking**: Hub/spoke models, related linking (3-5 per page), breadcrumbs, cross-linking automation
+5. **Thin Content Safeguards** (2025 Google Scaled Content Abuse enforcement):
+   - Flag pages <40% unique content
+   - Require approval at 500+ pages without justification
+   - Safe patterns: integration pages, product specs, glossary, templates with real unique data
+   - Risky patterns: location pages with only city swapped, AI-generated without human review
+6. **Canonical Strategy**: Manage duplicates, handle pagination
+7. **Index Bloat Prevention**: Crawl budget management for 10k+ page sites
+
+Output:
+1. Programmatic SEO Score (0-100) across 6 dimensions
+2. Safe vs. Risky pattern assessment
+3. Recommended data structure
+4. URL architecture plan
+5. Quality gates and approval thresholds
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Виконай аудит програматичного SEO для: **${f.url}**${f.context ? `\n\nОпис стратегії:\n${f.context}` : ''}`
+  },
+
+  // ── AI SEARCH ────────────────────────────────
+  {
+    id: 'seo-geo',
+    category: 'ai_search',
+    icon: '🤖',
+    name: 'GEO / AI Search',
+    description: 'Оптимізація для Google AI Overviews, ChatGPT, Perplexity — Generative Engine Optimization',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту або сторінки', placeholder: 'https://example.com', required: true }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a Generative Engine Optimization (GEO) specialist for 2025 AI search landscape.
+
+GEO scoring framework:
+- **Citability** (25%): 134-167 word quotable answer blocks; quotable facts with clear sourcing; structured data around key claims. Note: 92% of AI citations come from top-10 pages, but 47% originate below position 5
+- **Structure** (20%): Clear H2/H3 hierarchy; bullet point summaries; definition-style content; FAQ sections (when appropriate)
+- **Multi-Modal** (15%): Images, videos, infographics (increase AI selection by 156% per research); descriptive alt text
+- **Authority Signals** (20%): Author credentials visible; publication/update dates; Wikipedia presence; platform mentions; original research/data
+- **Technical Access** (20%): Server-side rendering essential (JavaScript NOT executed by AI crawlers); GPTBot/ClaudeBot/Google-Extended allowed in robots.txt
+
+Platform-specific analysis:
+- **Google AI Overviews**: appears on ~46% of searches; favors structured content, E-E-A-T, HTTPS
+- **ChatGPT web search**: doesn't access GBP directly; sources from Bing index, major directories; conversion rate 15.9% vs Google organic 1.76%
+- **Perplexity**: citation-focused; favors clear sourcing, academic-style references
+
+Google AI Mode (May 2025): zero organic links in AI mode responses — AI citation is the only visibility path.
+
+Output:
+1. GEO Score (0-100) with platform breakdown
+2. Citability analysis — quotable content blocks found/missing
+3. Technical access audit — crawler permissions
+4. Top 5 highest-impact recommendations with implementation examples
+5. Ready-to-use answer blocks for AI citation
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Виконай GEO аналіз для AI пошуку: **${f.url}**`
+  },
+
+  {
+    id: 'seo-sxo',
+    category: 'ai_search',
+    icon: '🎯',
+    name: 'SXO Аналіз',
+    description: 'Search Experience Optimization — виявлення невідповідності типу сторінки SERP патернам',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сторінки', placeholder: 'https://example.com/page', required: true },
+      { id: 'keyword', type: 'text', label: 'Цільовий запит', placeholder: 'купити ноутбук онлайн', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, an SXO (Search Experience Optimization) specialist. A technically perfect page (95/100 SEO) can score 30/100 SXO if it's the wrong content type for what Google rewards.
+
+7-Step SXO Pipeline:
+1. **Target Acquisition**: Extract page structure (title, headings, schema, CTAs, content type)
+2. **SERP Analysis**: Catalog top-10 dominant page types, formats, word counts, schema signals, SERP features
+3. **Page-Type Mismatch Detection**: Compare target vs. dominant SERP type
+   - CRITICAL: fundamentally wrong page type (e.g., product page ranking for informational query)
+   - WARNING: minor structural mismatches
+   - ALIGNED: correct page type, needs optimization
+4. **User Story Derivation**: Extract intent from search context, derive what users actually want
+5. **Gap Analysis**: Score alignment across 7 dimensions (page type, content depth, UX signals, schema, media richness, authority, freshness) → SXO Gap Score 0-100
+6. **Persona Scoring**: Relevance, clarity, trust, CTA effectiveness for primary audience
+7. **Wireframe**: IST (current structure) vs. SOLL (recommended structure) outline
+
+Key question: "Does this page deserve to rank for this keyword based on what Google is actually rewarding?"
+
+Output:
+1. SXO Gap Score (0-100) — separate from technical health
+2. SERP landscape analysis
+3. Page-type mismatch verdict (CRITICAL/WARNING/ALIGNED)
+4. 7-dimension breakdown table
+5. IST vs. SOLL wireframe outline
+6. Priority actions
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Виконай SXO аналіз для сторінки: **${f.url}**${f.keyword ? `\n\nЦільовий запит: **"${f.keyword}"**` : ''}`
+  },
+
+  {
+    id: 'seo-cluster',
+    category: 'ai_search',
+    icon: '🕸️',
+    name: 'Кластеризація тем',
+    description: 'Семантична кластеризація за SERP overlap — архітектура hub-and-spoke контенту',
+    fields: [
+      { id: 'keyword', type: 'text', label: 'Seed ключове слово', placeholder: 'SEO аналіз сайту', required: true },
+      { id: 'context', type: 'textarea', label: 'Тематика сайту (необов\'язково)', placeholder: 'Опишіть ваш сайт і цільову аудиторію...', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a semantic SEO and topic clustering specialist.
+
+Clustering methodology (SERP overlap, not text similarity):
+1. **Keyword Expansion**: Generate 30-50 variants — related searches, question modifiers (how/what/why/best), intent modifiers (buy/review/vs/alternative), long-tail variations
+2. **Intent Classification**: Each keyword → Informational / Commercial / Transactional / Navigational
+3. **Cluster Formation**: Group by shared top-10 SERP results (same URLs appearing = same cluster)
+4. **Hub-and-Spoke Architecture**:
+   - Pillar/Hub page: 2,500-4,000 words, broad topic, targets high-volume head term
+   - Spoke pages: 1,200-1,800 words, specific subtopic, targets long-tail variants
+5. **Internal Link Matrix**: Bidirectional linking, minimum 3 incoming links per spoke post
+6. **Content Calendar**: Recommended creation order (pillar first, then spokes)
+
+Output:
+1. **Cluster Map** — visual representation in table form (cluster name, hub keyword, spoke keywords)
+2. **Keyword Table** — all keywords with intent, estimated competition (Low/Med/High), recommended page type
+3. **Hub Page Brief** — outline for the main pillar page
+4. **Top 3 Spoke Briefs** — outlines for highest-priority spoke pages
+5. **Internal Linking Plan** — which pages link to which
+6. **Content Calendar** — recommended 90-day creation schedule
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Побудуй семантичну кластеризацію для теми: **"${f.keyword}"**${f.context ? `\n\nКонтекст сайту:\n${f.context}` : ''}`
+  },
+
+  // ── LOCAL ────────────────────────────────
+  {
+    id: 'seo-local',
+    category: 'local',
+    icon: '📍',
+    name: 'Локальне SEO',
+    description: 'Аудит локального пошуку: GBP, відгуки, NAP, локальна розмітка, цитування',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL бізнес-сайту', placeholder: 'https://example.com', required: true },
+      { id: 'context', type: 'textarea', label: 'Тип бізнесу та локація', placeholder: 'Напр.: стоматологія, Київ, вул. Хрещатик 1. Brick-and-mortar / SAB / hybrid?', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a local SEO specialist. Perform comprehensive local SEO audits.
+
+6 Core Dimensions with weights:
+1. **GBP Signals** (25%): Primary/secondary categories (incorrect primary = #1 negative factor), photo presence, business hours, Q&A, verified badge, attributes, Google Posts
+2. **Reviews & Reputation** (20%): Velocity (18-day rule: rankings decline after 3 weeks without new reviews), rating thresholds, recency, owner response rate, multi-platform presence (Google, Yelp, TripAdvisor, BBB)
+3. **Local On-Page SEO** (20%): Dedicated service pages (#1 local organic factor), title/H1 with city+service, NAP visibility in HTML, doorway page risk detection
+4. **NAP Consistency & Citations** (15%): Name/Address/Phone validation across HTML vs schema vs GBP; Tier 1 directories (Yelp, BBB, YP, Foursquare); citation signals are top AI visibility factors
+5. **Local Schema** (10%): LocalBusiness subtype accuracy, required properties, industry-specific (Restaurant, Healthcare, Legal, etc.)
+6. **Local Links & Authority** (10%): Chamber of Commerce, BBB accreditation, "best of" lists, local news mentions, brand mentions without links
+
+Key statistics:
+- 32% of local pack influenced by GBP signals; 55.2% by proximity
+- 76% of "near me" mobile searches lead to visits within 24 hours
+- ChatGPT local conversion: 15.9% vs. Google organic: 1.76%
+
+Output:
+1. Local SEO Score (0-100) with dimension breakdown
+2. GBP optimization checklist
+3. NAP consistency issues
+4. Citation audit (present/missing tier 1 directories)
+5. Review strategy recommendations
+6. Prioritized action plan
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Виконай аудит локального SEO для: **${f.url}**${f.context ? `\n\nКонтекст бізнесу: ${f.context}` : ''}`
+  },
+
+  {
+    id: 'seo-maps',
+    category: 'local',
+    icon: '🗺️',
+    name: 'Maps платформи',
+    description: 'Аналіз присутності на Google Maps, Bing Places, Apple Maps, OpenStreetMap',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL бізнес-сайту', placeholder: 'https://example.com', required: true }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a maps platform optimization specialist.
+
+Platforms to analyze:
+- **Google Maps / GBP**: Most important; 25 fields mapped to compliance checklist; industry-specific scoring
+- **Bing Places**: Bing index feeds ChatGPT local results — critical for AI local visibility
+- **Apple Maps**: Significant mobile traffic; sources from Yelp, Foursquare
+- **OpenStreetMap**: Free, community-edited; feeds many apps
+
+GBP Audit (25 fields):
+Business name, categories (primary + secondary), address, phone (local number preferred), website, hours (holiday hours), description (750 chars, keywords in first 250), attributes, Q&A, Google Posts, photos (exterior, interior, team, product), reviews, messaging enabled, products/services catalog
+
+Geo-Grid Rank Analysis (conceptual):
+Explain how rank tracking works from multiple GPS points in a city grid (typically 7x7), showing "Share of Local Voice" — percentage of searches where business appears in top 3.
+
+Review Intelligence:
+- Velocity patterns (consistent vs. burst = fake review signal)
+- Sentiment analysis: positive themes to amplify, negative to address
+- Geographic inconsistencies in reviewer locations (fake review detection)
+
+Output:
+1. Maps presence score per platform (0-100)
+2. GBP completeness checklist (✅/❌ per field)
+3. Missing platform registrations
+4. Fake review risk indicators
+5. Recommended photos (types and count)
+6. LocalBusiness JSON-LD schema
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Проаналізуй присутність бізнесу на maps платформах для: **${f.url}**`
+  },
+
+  {
+    id: 'seo-hreflang',
+    category: 'local',
+    icon: '🌍',
+    name: 'Hreflang',
+    description: 'Аудит та генерація hreflang розмітки для мультимовних сайтів',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту', placeholder: 'https://example.com', required: false },
+      { id: 'content', type: 'textarea', label: 'HTML мета-тегів або список мовних версій', placeholder: '<link rel="alternate" hreflang="en" href="..."/>\n<link rel="alternate" hreflang="uk" href="..."/>\n\nАбо: перелічіть мови/регіони сайту', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, an international SEO and hreflang specialist.
+
+8 Critical Hreflang Validations:
+1. **Self-Referencing**: Each page includes hreflang pointing to itself
+2. **Return Tags**: All hreflang relationships bidirectional (A links to B, B must link back to A)
+3. **x-default Tag**: Required fallback for unmatched languages/regions
+4. **Language Codes**: ISO 639-1 two-letter (en, fr, uk, de, etc.)
+5. **Region Codes**: Optional ISO 3166-1 Alpha-2 (en-GB, en-US, zh-TW, etc.)
+6. **Canonical Alignment**: Hreflang only on canonical URLs, never on paginated or filtered variants
+7. **Protocol Consistency**: All URLs use matching HTTP/HTTPS
+8. **Cross-Domain**: Works across domains with proper verification
+
+Implementation methods:
+- HTML <link> tags: best for <50 language variants
+- HTTP headers: for non-HTML files (PDFs)
+- XML sitemaps: for large sites with many language versions
+
+Common mistakes to flag:
+- Wrong language codes (en-EN instead of en-GB, zh-CHT instead of zh-Hant)
+- Missing self-referencing tags
+- Orphaned hreflang (A→B but B has no hreflang at all)
+- Using hreflang on non-canonical URLs
+
+Output:
+1. Validation results for each of the 8 checks (✅/❌/⚠️)
+2. Issues found with severity and fix
+3. Generated hreflang tags (HTML format, all language variants)
+4. Sitemap hreflang format (if applicable)
+5. x-default recommendation
+
+Respond in Ukrainian. Include code blocks for tag examples.`,
+    buildMessage: (f) => `Виконай аудит та згенеруй hreflang розмітку${f.url ? ` для: **${f.url}**` : ''}${f.content ? `\n\n**Існуючі теги або перелік мов:**\n\`\`\`\n${f.content}\n\`\`\`` : ''}`
+  },
+
+  // ── STRATEGY ────────────────────────────────
+  {
+    id: 'seo-plan',
+    category: 'strategy',
+    icon: '🗓️',
+    name: 'SEO Стратегія',
+    description: 'Стратегічний SEO план на 4 квартали з конкурентним аналізом та контент-стратегією',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту', placeholder: 'https://example.com', required: true },
+      { id: 'context', type: 'textarea', label: 'Контекст бізнесу', placeholder: 'Індустрія, конкуренти, цілі, бюджет, поточні проблеми...', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a strategic SEO consultant. Create comprehensive 4-quarter SEO plans.
+
+6-Phase Workflow:
+1. **Discovery**: Business context, audience, competitors, goals, constraints, current traffic/rankings
+2. **Competitive Analysis**: Top 3-5 competitor strategies, content gaps, link opportunities
+3. **Architecture Design**: URL hierarchy, information architecture, silo structure
+4. **Content Strategy**: Content gaps, editorial calendar, E-E-A-T signal plan, AI readiness
+5. **Technical Foundation**: Critical fixes, Core Web Vitals targets, schema implementation plan
+6. **Implementation Roadmap**: Phased execution with KPIs per quarter
+
+Industry templates: SaaS, local services, e-commerce, publishing, agencies, general business.
+
+Output (5 documents combined):
+1. **Executive Summary** — 3 key opportunities, expected outcomes, resource requirements
+2. **Competitive Intelligence** — competitor strengths/weaknesses, content gaps
+3. **90-Day Quick Win Plan** — immediate actions with expected impact
+4. **4-Quarter Roadmap** — table with Q1-Q4 priorities, KPIs, resources
+5. **URL Architecture** — recommended site structure with page types
+
+Include realistic traffic/ranking projections with timeframes.
+
+Respond in Ukrainian. Use tables for the roadmap.`,
+    buildMessage: (f) => `Розроби комплексну SEO стратегію для: **${f.url}**${f.context ? `\n\nКонтекст:\n${f.context}` : ''}`
+  },
+
+  {
+    id: 'seo-flow',
+    category: 'strategy',
+    icon: '🌊',
+    name: 'FLOW Framework',
+    description: '41 AI-промпт по 5 стадіях: Find → Leverage → Optimize → Win → Local',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту', placeholder: 'https://example.com', required: true },
+      { id: 'stage', type: 'select', label: 'Стадія FLOW', required: true, options: [
+        { value: 'full', label: 'Повний аналіз (всі стадії)' },
+        { value: 'find', label: 'FIND — Keyword research, gap analysis' },
+        { value: 'leverage', label: 'LEVERAGE — Backlink strategy' },
+        { value: 'optimize', label: 'OPTIMIZE — On-page & content' },
+        { value: 'win', label: 'WIN — Bottom-of-funnel conversion' },
+        { value: 'local', label: 'LOCAL — GBP, citations, reviews' }
+      ]}
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, applying the FLOW framework by Daniel Agrici (CC BY 4.0).
+
+FLOW Framework — 5 stages, 41 prompts:
+
+**FIND** (5 prompts): Keyword research, competitor gap analysis, SERP intent mapping, topic cluster discovery, quick-win keyword identification
+
+**LEVERAGE** (1 prompt): Backlink strategy — link gap analysis, outreach targets, link-worthy content ideas, domain authority building
+
+**OPTIMIZE** (21 prompts): Technical fixes, on-page optimization, content improvements, schema markup, image optimization, internal linking, UX improvements, Core Web Vitals, structured data, E-E-A-T enhancement, freshness signals, featured snippet optimization, PAA targeting, related searches integration, meta tag optimization, canonical issues, redirect audit, duplicate content, page speed, mobile optimization, conversion rate
+
+**WIN** (3 prompts): BOFU (bottom-of-funnel) content, conversion optimization, comparison pages, pricing page SEO
+
+**LOCAL** (11 prompts): GBP optimization, local citation audit, review strategy, local content, NAP consistency, local link building, localized schema, maps optimization, local keyword targeting, neighborhood targeting, local E-E-A-T
+
+For the requested stage, provide:
+1. Current stage assessment
+2. Specific findings and gaps
+3. Top 5 prioritized actions with implementation details
+4. Expected impact (High/Medium/Low) and effort (High/Medium/Low)
+5. 30-day execution plan
+
+Framework attribution: © Daniel Agrici, CC BY 4.0 — github.com/AgriciDaniel/flow
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Застосуй FLOW framework${f.stage !== 'full' ? ` (стадія: ${f.stage.toUpperCase()})` : ''} до сайту: **${f.url}**`
+  },
+
+  {
+    id: 'seo-backlinks',
+    category: 'strategy',
+    icon: '🔗',
+    name: 'Аналіз беклінків',
+    description: '7-секційний аналіз посилального профілю: якість, анкори, токсичні посилання, gap analysis',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту (аналіз)', placeholder: 'https://example.com', required: true },
+      { id: 'competitors', type: 'textarea', label: 'URL конкурентів для gap analysis (необов\'язково)', placeholder: 'competitor1.com\ncompetitor2.com', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a backlink profile analysis specialist.
+
+7-Section Analysis Framework:
+1. **Profile Overview**: Referring domains (>100 good, 20-100 warning, <20 critical), follow/nofollow ratio (>60% follow = good), domain diversity (TLD distribution, geographic spread), link velocity trend
+2. **Anchor Text Distribution**: Branded (ideal 40-60%), exact-match (flag if >15% — Penguin risk), partial-match, generic ("click here"), naked URLs; over-optimization check
+3. **Referring Domain Quality**: Authority tier distribution, TLD quality (.edu/.gov are valuable), geographic relevance, site relevance to industry
+4. **Toxic Link Detection**: PBN (private blog networks) signals, unnatural anchor patterns, mass directory submissions, link farms, paid link indicators, footer/sitewide links
+5. **Top Link-Attracting Pages**: Which pages have most backlinks, content types that attract links, broken pages with link equity (301 opportunities)
+6. **Competitor Gap Analysis**: Domains linking to competitors but NOT to target site — these are link acquisition opportunities
+7. **Link Velocity**: New vs. lost link trends, negative SEO detection (sudden spike in toxic links), content removal tracking
+
+Health Score Logic:
+- 4+ of 7 factors scored → 0-100 numeric score
+- Fewer than 4 → "НЕДОСТАТНЬО ДАНИХ" with available metrics
+
+Output:
+1. Backlink Health Score (0-100) or data status
+2. Profile summary table (key metrics)
+3. Toxic link flags (if detected)
+4. Top link opportunities from competitor gap
+5. Anchor text distribution chart (text-based)
+6. Action plan: link acquisition + disavow recommendations
+
+Respond in Ukrainian. Note: analysis is based on available public signals.`,
+    buildMessage: (f) => `Виконай аналіз посилального профілю для: **${f.url}**${f.competitors ? `\n\nКонкуренти для gap analysis:\n${f.competitors}` : ''}`
+  },
+
+  {
+    id: 'seo-ecommerce',
+    category: 'strategy',
+    icon: '🛒',
+    name: 'E-commerce SEO',
+    description: 'Оптимізація товарних сторінок: on-page, schema, зображення, marketplace аналіз',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL товарної сторінки', placeholder: 'https://example.com/product/123', required: true }
+    ],
+    pagespeed: true,
+    systemPrompt: `You are Claude SEO, an e-commerce SEO specialist.
+
+Product page scoring (6 dimensions):
+1. **Schema** (25%): Product schema with core properties (name, image, description, brand, offers/price, availability), enhancements (aggregateRating, shipping, returnPolicy). Validate against Google Merchant Center specs.
+2. **Title & Meta** (15%): Product name + brand + key attribute (color/size/model) in title (50-60 chars); meta description with price/USP/CTA (150-160 chars)
+3. **Images** (20%): Minimum 3-5 product images; white background for main; lifestyle/in-use shots; alt text with product name + key attribute; WebP format; <200KB
+4. **Content Uniqueness** (20%): Unique product descriptions (not manufacturer copy), feature bullets, specifications table, unique value proposition; minimum 400 words
+5. **Internal Linking** (10%): Breadcrumbs, related products, category links, recently viewed
+6. **Technical Performance** (10%): LCP, mobile UX, structured data in rendered HTML
+
+E-commerce specific checks:
+- Out-of-stock handling (keep page, add schema availability="OutOfStock")
+- Variant pages (canonical parent or dedicated pages?)
+- Review schema implementation
+- Price markup in schema (must match visible price)
+- GTIN/MPN/brand in schema (required for Google Shopping)
+
+Output:
+1. Product Page Score (0-100) with breakdown
+2. Schema validation (existing schema + issues + corrected version)
+3. Title/meta rewrite
+4. Content improvement plan
+5. Image audit
+6. Complete optimized Product JSON-LD schema
+
+Respond in Ukrainian. Include complete schema code.`,
+    buildMessage: (f, ps) => `Виконай SEO аудит товарної сторінки: **${f.url}**${ps ? '\n\n**PageSpeed:**\n```\n' + ps + '\n```' : ''}`
+  },
+
+  {
+    id: 'seo-drift',
+    category: 'strategy',
+    icon: '📊',
+    name: 'SEO Drift',
+    description: 'Моніторинг SEO змін: baseline, порівняння з попереднім станом, регресії',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сторінки', placeholder: 'https://example.com/page', required: true },
+      { id: 'action', type: 'select', label: 'Дія', required: true, options: [
+        { value: 'baseline', label: 'Зберегти baseline (зафіксувати поточний стан)' },
+        { value: 'compare', label: 'Порівняти з baseline' },
+        { value: 'guide', label: 'Що таке SEO Drift і як ним користуватись' }
+      ]},
+      { id: 'content', type: 'textarea', label: 'Попередній стан (для порівняння)', placeholder: 'Вставте попередній baseline JSON або опис змін...', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, an SEO change monitoring specialist implementing SEO Drift tracking.
+
+SEO Drift tracks 13 metrics as version control:
+1. Title tag (text + length)
+2. Meta description (text + length)
+3. Canonical URL
+4. H1 text
+5. H2-H3 hierarchy summary
+6. Schema markup (types + key properties)
+7. Open Graph tags (og:title, og:description, og:image)
+8. HTTP status code
+9. Core Web Vitals (LCP, INP, CLS)
+10. Robots meta tag
+11. Internal link count
+12. Word count estimate
+13. Primary keyword density
+
+17 Comparison Rules (3 severity levels):
+- CRITICAL: Title disappears, canonical changes, robots tag adds noindex, H1 removed
+- WARNING: Title length change >10 chars, meta description changes, schema type changes, word count drops >20%
+- INFO: Minor heading changes, internal link count changes, OG tag updates
+
+For "baseline" action: Create a structured JSON snapshot of all 13 metrics for this URL. Save format: { url, timestamp, metrics: {...} }
+For "compare" action: Compare current state against provided baseline, flag all changes by severity
+For "guide" action: Explain the concept and how to use it for ongoing monitoring
+
+Output baseline as copyable JSON that user can save.
+Output comparison as a change log table with severity ratings.
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => {
+      if (f.action === 'guide') return 'Поясни концепцію SEO Drift моніторингу та як ним користуватись для відстеження SEO змін';
+      if (f.action === 'baseline') return `Створи SEO baseline snapshot для сторінки: **${f.url}**\n\nЗгенеруй JSON з усіма 13 метриками, які потрібно зафіксувати. Поясни що має включати кожна метрика.`;
+      return `Порівняй поточний стан SEO сторінки **${f.url}** з попереднім baseline${f.content ? `:\n\n\`\`\`json\n${f.content}\n\`\`\`` : '. (Baseline не надано — поясни що потрібно зафіксувати для порівняння)'}`;
+    }
+  },
+
+  // ── TOOLS ────────────────────────────────
+  {
+    id: 'seo-google',
+    category: 'tools',
+    icon: '📈',
+    name: 'PageSpeed & Core Web Vitals',
+    description: 'Аналіз PageSpeed Insights даних + рекомендації щодо Core Web Vitals',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сторінки', placeholder: 'https://example.com', required: true }
+    ],
+    pagespeed: true,
+    pagespeedBoth: true,
+    systemPrompt: `You are Claude SEO, a Core Web Vitals and performance specialist.
+
+Analyze PageSpeed Insights data and provide actionable recommendations.
+
+Core Web Vitals thresholds (as of 2025):
+- **LCP** (Largest Contentful Paint): Good <2.5s, Needs Improvement 2.5-4s, Poor >4s
+- **INP** (Interaction to Next Paint, replaced FID Sept 9 2024): Good <200ms, Needs Improvement 200-500ms, Poor >500ms
+- **CLS** (Cumulative Layout Shift): Good <0.1, Needs Improvement 0.1-0.25, Poor >0.25
+- **FCP** (First Contentful Paint): Good <1.8s
+- **TTFB** (Time to First Byte): Good <800ms
+
+Optimization strategies by metric:
+**LCP**: Preload hero image/font, optimize server response, eliminate render-blocking resources, use CDN, compress images (WebP/AVIF)
+**INP**: Minimize JS execution time, break up long tasks (<50ms), defer non-critical JS, optimize event handlers, reduce main thread blocking
+**CLS**: Add width/height to images, reserve space for ads/embeds, avoid inserting content above existing content, use CSS aspect-ratio
+
+Field Data vs Lab Data: Field data (real user metrics from CrUX) is what Google uses for ranking — prioritize fixing field data issues.
+
+Output:
+1. Performance Score table (mobile + desktop)
+2. Core Web Vitals status with ✅/⚠️/❌
+3. Top opportunities (Lighthouse) with estimated time savings
+4. Specific code-level recommendations for each failing metric
+5. 30-day performance improvement roadmap
+
+Respond in Ukrainian.`,
+    buildMessage: (f, ps) => `Проаналізуй продуктивність та Core Web Vitals для: **${f.url}**${ps ? '\n\n**PageSpeed Insights дані:**\n```\n' + ps + '\n```' : '\n\n(PageSpeed дані будуть завантажені автоматично)'}`
+  },
+
+  {
+    id: 'seo-dataforseo',
+    category: 'tools',
+    icon: '📡',
+    name: 'SERP Аналіз',
+    description: 'Аналіз видачі, конкурентів та можливостей для просування у пошуку',
+    fields: [
+      { id: 'keyword', type: 'text', label: 'Запит або URL для аналізу', placeholder: 'купити ноутбук онлайн або https://example.com', required: true },
+      { id: 'context', type: 'textarea', label: 'Контекст (ринок, конкуренти, цілі)', placeholder: 'Україна, B2C e-commerce, конкуренти: competitor.com...', required: false }
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, a SERP analysis specialist. Analyze search engine results pages and competitive landscape.
+
+SERP Analysis framework:
+1. **SERP Features Present**: Featured snippets, People Also Ask, knowledge panel, image pack, video carousel, local pack, site links, shopping results — each affects click-through differently
+2. **Top 10 Competitor Analysis**:
+   - Page types (article/product/category/tool/comparison)
+   - Approximate word counts
+   - Schema types used
+   - Content format (list/guide/review/tool)
+   - Domain authority signals
+3. **Keyword Intent Classification**:
+   - Informational (how/what/why) → blog, guides
+   - Commercial (best/vs/review) → comparison, listicles
+   - Transactional (buy/price/order) → product, category
+   - Navigational (brand name) → homepage
+4. **Opportunity Assessment**:
+   - Keyword difficulty estimate (Low/Medium/High based on competitor signals)
+   - Content format gaps (what format is missing from top 10)
+   - Featured snippet opportunity (if answer box present — is there a gap?)
+   - PAA questions to target
+
+5. **Ranking Factors for This SERP**: What seems to correlate with top rankings (content depth, freshness, domain authority, schema, backlinks)
+
+Output:
+1. SERP landscape overview
+2. Top 10 competitor breakdown table
+3. Intent classification + content format recommendation
+4. Featured snippet opportunity analysis
+5. Recommended content angle to win this SERP
+6. Long-tail variations worth targeting
+
+Note: Analysis based on AI knowledge of SEO patterns. For live SERP data, DataForSEO integration required.
+
+Respond in Ukrainian.`,
+    buildMessage: (f) => `Виконай SERP аналіз для запиту/URL: **"${f.keyword}"**${f.context ? `\n\nКонтекст:\n${f.context}` : ''}`
+  },
+
+  {
+    id: 'seo-image-gen',
+    category: 'tools',
+    icon: '🎨',
+    name: 'SEO Зображення',
+    description: 'Рекомендації та технічні специфікації для SEO-оптимізованих зображень',
+    fields: [
+      { id: 'context', type: 'text', label: 'Тип зображення та контент', placeholder: 'Hero банер для SaaS лендінгу, тема: аналіз даних', required: true },
+      { id: 'action', type: 'select', label: 'Тип завдання', required: true, options: [
+        { value: 'spec', label: 'Технічні специфікації для зображення' },
+        { value: 'alt', label: 'Генерація alt text для зображень' },
+        { value: 'schema', label: 'ImageObject schema markup' },
+        { value: 'og', label: 'Open Graph зображення (1200×630)' }
+      ]}
+    ],
+    pagespeed: false,
+    systemPrompt: `You are Claude SEO, an image SEO specialist. Help with image optimization strategy and technical specifications.
+
+Image SEO use cases:
+1. **Technical Specs**: Optimal dimensions, file size targets, format recommendations per use case
+   - OG/Social preview: 1200×630px, 16:9, <200KB, WebP
+   - Blog hero: 1600×900px or 16:9, <150KB, WebP
+   - Product photography: square or 4:3, white background, <100KB, WebP
+   - Infographic: tall/vertical, 800-1200px wide, <300KB
+   - Thumbnails: 400×300px, <50KB
+
+2. **Alt Text Generation**: SEO-optimized alt text (10-125 chars, natural keyword inclusion, descriptive)
+   - Good: "SEO audit dashboard showing 87/100 technical score with Core Web Vitals metrics"
+   - Bad: "image.jpg" or keyword stuffing
+
+3. **ImageObject Schema**:
+   ```json
+   {
+     "@type": "ImageObject",
+     "url": "https://...",
+     "width": 1200,
+     "height": 630,
+     "caption": "...",
+     "name": "...",
+     "description": "..."
+   }
+   ```
+
+4. **Open Graph Image**: og:image meta tag specifications, recommended dimensions, fallback images
+
+5. **File Naming**: Lowercase, hyphens, descriptive keywords (seo-audit-dashboard.webp not IMG_1234.jpg)
+
+Post-generation SEO checklist:
+- Alt text with keywords ✓
+- SEO-friendly file name ✓
+- WebP conversion targeting <200KB ✓
+- ImageObject schema ✓
+- OG meta tags for social ✓
+
+Respond in Ukrainian with specific, actionable specifications.`,
+    buildMessage: (f) => {
+      const actions = { spec: 'технічні специфікації', alt: 'alt text варіанти', schema: 'ImageObject schema markup', og: 'Open Graph зображення специфікації' };
+      return `Надай ${actions[f.action] || 'рекомендації'} для зображення: **${f.context}**`;
+    }
+  },
+
+  {
+    id: 'seo',
+    category: 'tools',
+    icon: '🚀',
+    name: 'SEO Оркестратор',
+    description: 'Головний аналізатор — автоматично визначає тип сайту і запускає релевантний аналіз',
+    fields: [
+      { id: 'url', type: 'text', label: 'URL сайту', placeholder: 'https://example.com', required: true }
+    ],
+    pagespeed: true,
+    systemPrompt: `You are Claude SEO, a master SEO orchestrator. Automatically detect site type and deliver the most relevant analysis.
+
+Step 1 — Site Type Detection (from URL and context):
+- **SaaS/Software**: /pricing, /features, /sign-up patterns → focus on product page SEO, trial conversion, feature schema
+- **E-commerce**: /product/, /shop/, /cart patterns → product schema, category SEO, shopping optimization
+- **Local Business**: location in URL/name, /contact with address → local SEO, GBP, NAP, local schema
+- **Publisher/Blog**: /blog/, /news/, /article patterns → content quality, E-E-A-T, topical authority
+- **Agency/Service**: /services/, case studies → service schema, authority building, GEO
+
+Step 2 — Deliver Comprehensive Analysis tailored to detected type:
+
+For ALL sites:
+- SEO Health Score (0-100) with weighted dimensions
+- Critical technical issues
+- Core Web Vitals status
+- Schema markup assessment
+
+For detected type, add:
+- SaaS: trial page SEO, pricing page schema, competitor comparison pages
+- E-commerce: product schema, category SEO, merchant center compliance
+- Local: GBP signals, NAP, citation strategy, local schema
+- Publisher: E-E-A-T, topical authority, content clusters
+- Agency: case study schema, expertise signals, GEO for AI search
+
+Step 3 — Prioritized Action Plan:
+- Quick wins (1-3 days)
+- High impact (1-2 weeks)
+- Strategic (1-3 months)
+
+Output: Full analysis with detected site type, health score, type-specific insights, and prioritized roadmap.
+
+Respond in Ukrainian.`,
+    buildMessage: (f, ps) => `Виконай комплексний SEO аналіз сайту (автоматичне визначення типу): **${f.url}**${ps ? '\n\n**PageSpeed:**\n```\n' + ps + '\n```' : ''}`
+  }
+];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+const state = {
+  skillId: 'seo-audit',
+  loading: false,
+  controller: null,
+  responseText: '',
+};
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderSidebar();
+  selectSkill('seo-audit');
+  updateKeyButton();
+
+  // Close modal on overlay click
+  document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  // Enter to save API key
+  document.getElementById('apiKeyInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveApiKey();
+  });
+});
+
+// ═══════════════════════════════════════════
+//  SIDEBAR
+// ═══════════════════════════════════════════
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  let html = '';
+  CATEGORIES.forEach(cat => {
+    const skills = SKILLS.filter(s => s.category === cat.id);
+    if (!skills.length) return;
+    html += `<div class="cat-header">${cat.name}</div>`;
+    skills.forEach(skill => {
+      html += `<div class="skill-item" id="si-${skill.id}" onclick="selectSkill('${skill.id}')">
+        <span class="si-icon">${skill.icon}</span>
+        <span class="si-name">${skill.name}</span>
+      </div>`;
+    });
+  });
+  sidebar.innerHTML = html;
+}
+
+function selectSkill(id) {
+  const skill = SKILLS.find(s => s.id === id);
+  if (!skill) return;
+  state.skillId = id;
+
+  // Update sidebar active state
+  document.querySelectorAll('.skill-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('si-' + id);
+  if (el) {
+    el.classList.add('active');
+    el.scrollIntoView({ block: 'nearest' });
+  }
+
+  // Update header
+  document.getElementById('skillTitle').textContent = skill.icon + ' ' + skill.name;
+  document.getElementById('skillDesc').textContent = skill.description;
+
+  // Render form
+  renderForm(skill);
+}
+
+// ═══════════════════════════════════════════
+//  FORM
+// ═══════════════════════════════════════════
+function renderForm(skill) {
+  const panel = document.getElementById('formPanel');
+  let html = '';
+
+  skill.fields.forEach(field => {
+    html += `<div class="field-group">
+      <label>${field.label}${field.required ? '' : ''}</label>`;
+
+    if (field.type === 'select') {
+      html += `<select id="f-${field.id}">`;
+      (field.options || []).forEach(opt => {
+        html += `<option value="${opt.value}">${opt.label}</option>`;
+      });
+      html += `</select>`;
+    } else if (field.type === 'textarea') {
+      html += `<textarea id="f-${field.id}" placeholder="${field.placeholder || ''}" rows="4"></textarea>`;
+    } else {
+      html += `<input type="text" id="f-${field.id}" placeholder="${field.placeholder || ''}" />`;
+    }
+    html += `</div>`;
+  });
+
+  if (skill.pagespeed) {
+    html += `<label class="pagespeed-toggle">
+      <input type="checkbox" id="psToggle" checked />
+      Завантажити PageSpeed Insights дані
+    </label>`;
+  }
+
+  html += `<button class="btn-analyze" id="btnAnalyze" onclick="analyze()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Аналізувати
+  </button>`;
+  html += `<button class="btn-stop" id="btnStop" onclick="stopAnalysis()">⛔ Зупинити</button>`;
+
+  panel.innerHTML = html;
+
+  // Focus first input
+  const firstInput = panel.querySelector('input[type="text"]');
+  if (firstInput) firstInput.focus();
+}
+
+// ═══════════════════════════════════════════
+//  API KEY
+// ═══════════════════════════════════════════
+function getApiKey() { return localStorage.getItem('claude_seo_key') || ''; }
+
+function updateKeyButton() {
+  const btn = document.getElementById('btnKey');
+  const hasKey = !!getApiKey();
+  btn.classList.toggle('active', hasKey);
+  btn.title = hasKey ? 'API ключ збережено' : 'Додати API ключ';
+}
+
+function openModal() {
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.remove('hidden');
+  const input = document.getElementById('apiKeyInput');
+  input.value = getApiKey();
+  input.focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (key) {
+    localStorage.setItem('claude_seo_key', key);
+    updateKeyButton();
+  }
+  closeModal();
+}
+
+// ═══════════════════════════════════════════
+//  PAGESPEED
+// ═══════════════════════════════════════════
+async function fetchPageSpeed(url, bothStrategies = false) {
+  const strategies = bothStrategies ? ['mobile', 'desktop'] : ['mobile'];
+  const results = [];
+  for (const strategy of strategies) {
+    try {
+      const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}`;
+      const res = await fetch(endpoint);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const cats = data.lighthouseResult?.categories || {};
+      const audits = data.lighthouseResult?.audits || {};
+      const cwv = data.loadingExperience?.metrics || {};
+
+      const score = (key) => cats[key] ? Math.round(cats[key].score * 100) : 'N/A';
+      const metric = (key) => {
+        const m = cwv[key];
+        if (!m) return 'N/A';
+        return `${m.percentile}ms [${m.category}]`;
+      };
+      const lab = (key) => audits[key]?.displayValue || 'N/A';
+
+      results.push(`[${strategy.toUpperCase()}]
+Performance: ${score('performance')}/100 | SEO: ${score('seo')}/100 | Accessibility: ${score('accessibility')}/100
+LCP (field): ${metric('LARGEST_CONTENTFUL_PAINT_MS')} | LCP (lab): ${lab('largest-contentful-paint')}
+INP (field): ${metric('INTERACTION_TO_NEXT_PAINT')} | CLS (field): ${metric('CUMULATIVE_LAYOUT_SHIFT_SCORE')}
+FCP (lab): ${lab('first-contentful-paint')} | TBT (lab): ${lab('total-blocking-time')}
+Speed Index: ${lab('speed-index')}`);
+    } catch {}
+  }
+  return results.join('\n\n') || null;
+}
+
+// ═══════════════════════════════════════════
+//  ANALYZE
+// ═══════════════════════════════════════════
+async function analyze() {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    openModal();
+    return;
+  }
+
+  const skill = SKILLS.find(s => s.id === state.skillId);
+  if (!skill) return;
+
+  // Collect form values
+  const formValues = {};
+  let valid = true;
+  skill.fields.forEach(field => {
+    const el = document.getElementById('f-' + field.id);
+    if (el) {
+      formValues[field.id] = el.value.trim();
+      if (field.required && !formValues[field.id]) {
+        el.style.borderColor = 'var(--danger)';
+        el.focus();
+        valid = false;
+      } else {
+        el.style.borderColor = '';
+      }
+    }
+  });
+  if (!valid) return;
+
+  setLoading(true);
+  setStatus('Завантаження...');
+  setResponse('');
+
+  // Fetch PageSpeed if needed
+  let pagespeedData = null;
+  const psToggle = document.getElementById('psToggle');
+  if (skill.pagespeed && psToggle && psToggle.checked && formValues.url) {
+    setStatus('Завантаження PageSpeed Insights...');
+    pagespeedData = await fetchPageSpeed(formValues.url, !!skill.pagespeedBoth);
+  }
+
+  // Build message
+  const userMessage = typeof skill.buildMessage === 'function'
+    ? skill.buildMessage(formValues, pagespeedData)
+    : `Проаналізуй: ${formValues.url || formValues.keyword || formValues.context}`;
+
+  const model = document.getElementById('modelSelect').value;
+
+  setStatus('Генерація відповіді...');
+
+  state.controller = new AbortController();
+  let fullText = '';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      signal: state.controller.signal,
+      headers: {
+        'x-api-key': apiKey,
+        'content-type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: model,
+        max_tokens: 8096,
+        stream: true,
+        system: skill.systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `API Error ${res.status}`);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    setStatus('Отримання відповіді...');
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const event = JSON.parse(data);
+          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+            fullText += event.delta.text;
+            setResponse(fullText);
+          }
+        } catch {}
+      }
+    }
+
+    state.responseText = fullText;
+    setStatus(`Готово · ${fullText.split(/\s+/).length} слів`);
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      setStatus('Зупинено');
+    } else {
+      setStatus('Помилка: ' + err.message);
+      setResponse(`**Помилка:** ${err.message}\n\nПеревірте API ключ або спробуйте ще раз.`);
+    }
+  } finally {
+    setLoading(false);
+  }
+}
+
+function stopAnalysis() {
+  if (state.controller) state.controller.abort();
+}
+
+// ═══════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════
+function setLoading(loading) {
+  state.loading = loading;
+  const btn = document.getElementById('btnAnalyze');
+  const stop = document.getElementById('btnStop');
+  if (btn) btn.disabled = loading;
+  if (stop) stop.style.display = loading ? 'block' : 'none';
+}
+
+function setStatus(text) {
+  const el = document.getElementById('responseStatus');
+  if (el) el.textContent = text;
+}
+
+function setResponse(text) {
+  const content = document.getElementById('responseContent');
+  if (!content) return;
+  if (!text) {
+    content.innerHTML = `<div class="placeholder"><div class="ph-icon">📊</div><h3>Результат аналізу</h3><p>Введіть дані та натисніть «Аналізувати»</p></div>`;
+    return;
+  }
+
+  if (state.loading) {
+    content.innerHTML = `<div class="md-body">${marked.parse(text)}</div><div class="loading-dots"><span></span><span></span><span></span></div>`;
+  } else {
+    content.innerHTML = `<div class="md-body">${marked.parse(text)}</div>`;
+  }
+  content.scrollTop = content.scrollHeight;
+}
+
+function copyResponse() {
+  if (!state.responseText) return;
+  navigator.clipboard.writeText(state.responseText).then(() => {
+    const btn = document.getElementById('btnCopy');
+    btn.textContent = 'Скопійовано ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Копіювати';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
